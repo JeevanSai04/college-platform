@@ -5,30 +5,34 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 
 export default function CollegeDetail() {
-  const [college, setCollege] = useState<any>(null);
-
-  // ✅ Correct way to get id
   const params = useParams();
-  const id = params?.id;
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
+  const [college, setCollege] = useState<any>(null);
 
   useEffect(() => {
     if (!id) return;
 
     const fetchCollege = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/colleges");
+        const res = await axios.get(
+          "https://college-platform-i3hs.onrender.com/colleges"
+        );
 
-        const found = res.data.find((c: any) => c.id == id);
-        setCollege(found);
+        const found = res.data.find(
+          (c: any) => String(c.id) === String(id)
+        );
+
+        setCollege(found || null);
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchCollege();
-  }, [id]); // ✅ ONLY id here
+  }, [id]);
 
-  if (!college) return <p>Loading...</p>;
+  if (!college) return <p className="p-6">Loading...</p>;
 
   return (
     <div className="p-6">

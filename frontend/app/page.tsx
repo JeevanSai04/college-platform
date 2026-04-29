@@ -3,18 +3,28 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-
+import { API } from "@/lib/api";
 
 export default function Home() {
   const [colleges, setColleges] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [selected, setSelected] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ ADDED
+  const [error, setError] = useState(""); // ✅ ADDED
 
   useEffect(() => {
-    axios.get("http://localhost:5000/colleges")
-      .then((res) => setColleges(res.data))
-      .catch((err) => console.error(err));
+    axios
+      .get(`${API}/colleges`)
+      .then((res) => {
+        setColleges(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to load colleges");
+        setLoading(false);
+      });
   }, []);
 
   const filteredColleges = colleges.filter((c) =>
@@ -29,6 +39,16 @@ export default function Home() {
       setSelected(selected.filter((c) => c.id !== college.id));
     }
   };
+
+  // ✅ LOADING STATE
+  if (loading) {
+    return <p className="p-6">Loading colleges...</p>;
+  }
+
+  // ❌ ERROR STATE
+  if (error) {
+    return <p className="p-6 text-red-500">{error}</p>;
+  }
 
   return (
     <div className="p-6">
@@ -63,14 +83,12 @@ export default function Home() {
         {filteredColleges.map((c) => (
           <div key={c.id} className="border rounded-xl p-4 shadow">
 
-            {/* Checkbox */}
             <input
               type="checkbox"
               className="mb-2"
               onChange={(e) => handleSelect(c, e.target.checked)}
             />
 
-            {/* 🔗 Clickable area */}
             <Link href={`/college/${c.id}`}>
               <div className="cursor-pointer">
                 <h2 className="text-xl font-semibold">{c.name}</h2>
