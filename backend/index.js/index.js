@@ -7,15 +7,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ ROOT ROUTE (ADD THIS)
+// ✅ ROOT ROUTE
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
 // Test DB
 app.get("/test-db", async (req, res) => {
-  const result = await pool.query("SELECT NOW()");
-  res.json(result.rows);
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB Error");
+  }
 });
 
 // Colleges
@@ -29,6 +34,9 @@ app.get("/colleges", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+// ✅ FIXED PORT (IMPORTANT FOR DEPLOYMENT)
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
