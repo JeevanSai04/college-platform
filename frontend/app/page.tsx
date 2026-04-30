@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { API } from "@/lib/api";
+import CollegeSkeleton from "@/components/CollegeSkeleton";
 
 export default function Home() {
   const [colleges, setColleges] = useState<any[]>([]);
@@ -41,9 +42,19 @@ export default function Home() {
   };
 
   // ✅ LOADING STATE
-  if (loading) {
-    return <p className="p-6">Loading colleges...</p>;
-  }
+ if (loading) {
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">College List</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <CollegeSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
   // ❌ ERROR STATE
   if (error) {
